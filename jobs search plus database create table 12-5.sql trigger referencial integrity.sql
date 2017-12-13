@@ -182,6 +182,47 @@ go
 
 
 
+--delete triggers
+ create trigger trg_activitiesdelete 
+ on				leads
+ after			delete
+ as
+ begin
+		if exists (select* from deleted i where i.LeadID in (select distinct LeadID from Activities))
+begin
+	raiserror (' Record exists in the referenced table, delete did not happen' ,16, 1)
+	rollback transaction 
+end
+end
+go
+
+
+--delete sourceID trigger
+create trigger trg_sourceID_contact_company_Delete
+on			   leads
+after		   delete
+as
+begin
+	if exists (select* from deleted i where i.sourceID in (select distinct SourceID from Leads))
+begin
+	raiserror ('Record exists in the referenced table, delete did not happen', 16, 1)
+	rollback transaction 
+end
+	if exists (select* from deleted i where i.ContactID in (select distinct ContactID from leads))
+begin
+	raiserror ('Record exists in the referenced table, delete did not happen', 16, 1)
+	rollback transaction
+end
+	if exists (select* from deleted i where i.CompanyID in (select distinct CompanyID from leads))
+begin
+	raiserror ('Record exists in the referenced table , delete did not happen', 16, 1)
+end
+end
+go
+
+
+
+
 
 --insert into businesstypes
 insert into BusinessTypes
