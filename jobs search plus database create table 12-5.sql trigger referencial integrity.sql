@@ -196,28 +196,88 @@ end
 end
 go
 
-
 --delete sourceID trigger
-create trigger trg_sourceID_contact_company_Delete
-on			   leads
+create trigger trg_sourcedelete
+on			   sources
+after          delete
+as
+begin
+	if exists ( select * from deleted d where d.sourceID in (select distinct SourceID from Leads))
+begin
+	raiserror (' SourceID Record exists in the referenced table, deletion aborted', 16, 1)
+	rollback transaction 
+end 
+end
+go
+
+--TEST
+--update leads
+--set    SourceID = 1
+--where   leadID = 1
+
+--delete from sources where sourceID = 1
+
+--delete ContactID trigger
+
+
+
+create trigger trg_Contactdelete
+on			   contacts
 after		   delete
 as
 begin
-	if exists (select* from deleted i where i.sourceID in (select distinct SourceID from Leads))
+	if exists (select * from deleted d where d.ContactID in (select distinct ContactID from leads))
 begin
-	raiserror ('Record exists in the referenced table, delete did not happen', 16, 1)
+	raiserror (' ContactID Record exists in the referenced table, deletion aborted', 16, 1)
+	rollback transaction
+end 
+end 
+go
+
+
+--TEST
+--update leads
+--set ContactID = 1
+--where leadID = 1
+
+--delete from contacts where contactID = 1
+
+
+
+--companyID delete trigger
+create trigger trg_companydelete
+on			   companies
+after		   delete
+as
+begin
+	if exists (select * from deleted d where d.CompanyID in (select distinct companyID from leads))
+begin
+	raiserror (' CompanyID Record exists in the referenced table, deletion aborted', 16, 1)
 	rollback transaction 
 end
-	if exists (select* from deleted i where i.ContactID in (select distinct ContactID from leads))
+end
+go
+
+--TEST
+--update  leads
+--set     CompanyID = 1
+--where   leadID = 1
+--delete from companies where CompanyID = 1
+
+
+
+--Businesstype delete trigger
+create trigger trg_businesstypedelete
+on			   businesstypes
+after		   delete
+as
 begin
-	raiserror ('Record exists in the referenced table, delete did not happen', 16, 1)
+	if exists (select * from deleted d where d.BusinessType in (select distinct BusinessType from Companies))
+begin
+	raiserror (' Businesstype is referenced in table, deletion aborted', 16, 1)
 	rollback transaction
-end
-	if exists (select* from deleted i where i.CompanyID in (select distinct CompanyID from leads))
-begin
-	raiserror ('Record exists in the referenced table , delete did not happen', 16, 1)
-end
-end
+end 
+end 
 go
 
 
