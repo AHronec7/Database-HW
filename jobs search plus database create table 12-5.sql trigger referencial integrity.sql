@@ -391,9 +391,6 @@ insert into Leads
 
 
 
-
-
-
 --insert into Activites
 insert into activities 
 ( leadID, ActivityDate, ActivityType)
@@ -401,4 +398,10 @@ values ( 2, getdate(), 'filled out application')
 
 
 
+--Views
 
+create view [job leads]
+as
+select Max(recordate) [number of job leads]
+from      leads
+where    dateadd(day, recorddate)
